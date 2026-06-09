@@ -1,0 +1,18 @@
+# Render Blueprint Configuration
+# This file allows you to deploy directly from GitHub to Render
+
+services:
+  - type: web
+    name: pawn-broker-system
+    env: node
+    plan: free
+    buildCommand: npm install && npm run init-db
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+    # Health check endpoint
+    healthCheckPath: /api/health
+

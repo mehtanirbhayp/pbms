@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Database
+database/*.db
+database/*.db-journal
+
+# Backups (keep local, don't commit to git)
+backups/
+
+# Uploads (temporary files for data import)
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+
