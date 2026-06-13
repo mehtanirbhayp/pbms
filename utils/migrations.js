@@ -275,6 +275,55 @@ function addNoticeColumns(db, callback) {
   });
 }
 
+function ensureCustomerColumns(db, callback) {
+  // Get all customer table column names
+  db.all("PRAGMA table_info(customers)", (err, columns) => {
+    if (err) {
+      return callback(err);
+    }
+
+    const columnNames = columns.map(col => col.name);
+    const hasPost = columnNames.includes('post');
+    const hasPinCode = columnNames.includes('pin_code');
+    const hasAadharNumber = columnNames.includes('aadhar_number');
+
+    if (hasPost && hasPinCode && hasAadharNumber) {
+      return callback();
+    }
+
+    const columnsToAdd = [];
+    if (!hasPost) columnsToAdd.push('post TEXT');
+    if (!hasPinCode) columnsToAdd.push('pin_code TEXT');
+    if (!hasAadharNumber) columnsToAdd.push('aadhar_number TEXT');
+
+    let completed = 0;
+    let hasError = false;
+
+    const addNextColumn = () => {
+      if (completed >= columnsToAdd.length) {
+        callback();
+        return;
+      }
+
+      const columnDef = columnsToAdd[completed];
+      db.run(`ALTER TABLE customers ADD COLUMN ${columnDef}`, (err) => {
+        if (err) {
+          if (err.message && err.message.includes('duplicate column name')) {
+            // ignore and continue
+          } else {
+            hasError = true;
+            return callback(err);
+          }
+        }
+        completed++;
+        addNextColumn();
+      });
+    };
+
+    addNextColumn();
+  });
+}
+
 function addRemarksColumn(db, callback) {
   // Get all column names
   db.all("PRAGMA table_info(loans)", (err, columns) => {
@@ -418,48 +467,54 @@ function runMigrations() {
             return finish(companyErr);
           }
 
-          migrateStatusValues(db, (statusErr) => {
-            if (statusErr) {
-              return finish(statusErr);
+          ensureCustomerColumns(db, (customerColErr) => {
+            if (customerColErr) {
+              return finish(customerColErr);
             }
 
-            addNoticeColumns(db, (noticeErr) => {
-              if (noticeErr) {
-                return finish(noticeErr);
+            migrateStatusValues(db, (statusErr) => {
+              if (statusErr) {
+                return finish(statusErr);
               }
 
-              addRemarksColumn(db, (remarksErr) => {
-                if (remarksErr) {
-                  return finish(remarksErr);
+              addNoticeColumns(db, (noticeErr) => {
+                if (noticeErr) {
+                  return finish(noticeErr);
                 }
 
-                addTimeLimitDateColumn(db, (timeLimitErr) => {
-                  if (timeLimitErr) {
-                    return finish(timeLimitErr);
+                addRemarksColumn(db, (remarksErr) => {
+                  if (remarksErr) {
+                    return finish(remarksErr);
                   }
 
-                  db.get(
-                    "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name = 'loans'",
-                    (err, row) => {
-                      if (err) {
-                        return finish(err);
+                  addTimeLimitDateColumn(db, (timeLimitErr) => {
+                    if (timeLimitErr) {
+                      return finish(timeLimitErr);
+                    }
+
+                    db.get(
+                      "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name = 'loans'",
+                      (err, row) => {
+                        if (err) {
+                          return finish(err);
+                        }
+
+                        if (!row) {
+                          return finish();
+                        }
+
+                        const tableSql = row.sql || '';
+                        const hasUniqueSerial =
+                          /serial_number\s+TEXT\s+NOT\s+NULL\s+UNIQUE/i.test(tableSql);
+
+                        if (hasUniqueSerial) {
+                          migrateSerialNumbers(db, finish);
+                        } else {
+                          ensureCompositeIndex(db, finish);
+                        }
                       }
-
-                    if (!row) {
-                      return finish();
-                    }
-
-                    const tableSql = row.sql || '';
-                    const hasUniqueSerial =
-                      /serial_number\s+TEXT\s+NOT\s+NULL\s+UNIQUE/i.test(tableSql);
-
-                    if (hasUniqueSerial) {
-                      migrateSerialNumbers(db, finish);
-                    } else {
-                      ensureCompositeIndex(db, finish);
-                    }
-                  }
-                );
+                    );
+                  });
                 });
               });
             });

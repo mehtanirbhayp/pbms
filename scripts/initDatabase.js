@@ -33,6 +33,9 @@ db.serialize(() => {
       father_name TEXT,
       husband_name TEXT,
       address TEXT NOT NULL,
+      post TEXT,
+      pin_code TEXT,
+      aadhar_number TEXT,
       occupation TEXT,
       cell_number TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP

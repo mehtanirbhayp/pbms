@@ -37,10 +37,10 @@ router.get('/:companyId', async (req, res) => {
       SELECT l.id, l.serial_number, l.company_id, l.customer_id, l.loan_amount, 
              l.item_weight, l.item_description, l.item_type, l.loan_date, 
              l.interest_rate, l.status, l.created_at,
-             l.released_date,
+             l.released_date, l.time_limit_date,
              c.name as company_name,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -129,7 +129,7 @@ router.get('/:companyId', async (req, res) => {
 router.get('/:companyId/export', async (req, res) => {
   try {
     const { companyId } = req.params;
-    const { startDate, endDate, status } = req.query;
+    const { startDate, endDate, status, columns } = req.query;
     const db = new Database();
     
     // Build date filter (same as above)
@@ -157,10 +157,10 @@ router.get('/:companyId/export', async (req, res) => {
       SELECT l.id, l.serial_number, l.company_id, l.customer_id, l.loan_amount, 
              l.item_weight, l.item_description, l.item_type, l.loan_date, 
              l.interest_rate, l.status, l.created_at,
-             l.released_date,
+             l.released_date, l.time_limit_date,
              c.name as company_name,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -177,23 +177,62 @@ router.get('/:companyId/export', async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Master Sheet');
     
-    // Set up headers
-    worksheet.columns = [
-      { header: 'Serial No', key: 'serial_number', width: 15 },
-      { header: 'Date', key: 'loan_date', width: 12 },
-      { header: 'Customer Name', key: 'customer_name', width: 25 },
-      { header: 'Father/Husband', key: 'father_husband', width: 20 },
-      { header: 'Address', key: 'address', width: 30 },
-      { header: 'Occupation', key: 'occupation', width: 15 },
-      { header: 'Cell No', key: 'cell_number', width: 15 },
-      { header: 'Loan Amount', key: 'loan_amount', width: 15 },
-      { header: 'Item Type', key: 'item_type', width: 10 },
-      { header: 'Weight (gms)', key: 'item_weight', width: 12 },
-      { header: 'Description', key: 'item_description', width: 30 },
-      { header: 'Interest Rate', key: 'interest_rate', width: 12 },
-      { header: 'Status', key: 'status', width: 12 },
-      { header: 'Released Date', key: 'released_date', width: 15 }
+    // All available master sheet column definitions
+    const columnDefinitions = {
+      serial_number: { header: 'Serial No', width: 15, getValue: (loan) => loan.serial_number },
+      loan_date: { header: 'Date', width: 12, getValue: (loan) => moment(loan.loan_date).format('DD/MM/YYYY') },
+      customer_name: { header: 'Customer Name', width: 25, getValue: (loan) => loan.customer_name },
+      father_husband: { header: 'Father/Husband', width: 20, getValue: (loan) => loan.father_name || loan.husband_name || '' },
+      address: { header: 'Address', width: 30, getValue: (loan) => loan.address },
+      post: { header: 'Post', width: 15, getValue: (loan) => loan.post || '' },
+      pin_code: { header: 'Pin Code', width: 12, getValue: (loan) => loan.pin_code || '' },
+      cell_number: { header: 'Cell No', width: 15, getValue: (loan) => loan.cell_number || '' },
+      aadhar_number: { header: 'Aadhar Number', width: 18, getValue: (loan) => loan.aadhar_number || '' },
+      occupation: { header: 'Occupation', width: 15, getValue: (loan) => loan.occupation || '' },
+      loan_amount: { header: 'Loan Amount', width: 15, getValue: (loan) => parseFloat(loan.loan_amount).toFixed(2) },
+      item_type: { header: 'Item Type', width: 10, getValue: (loan) => loan.item_type.toUpperCase() },
+      item_weight: { header: 'Weight (gms)', width: 12, getValue: (loan) => parseFloat(loan.item_weight).toFixed(3) },
+      item_description: { header: 'Description', width: 30, getValue: (loan) => loan.item_description },
+      interest_rate: { header: 'Interest Rate', width: 15, getValue: (loan) => loan.interest_rate ? `${parseFloat(loan.interest_rate).toFixed(2)}%` : '0.00%' },
+      status: { header: 'Status', width: 12, getValue: (loan) => loan.status.toUpperCase() },
+      released_date: { header: 'Released Date', width: 15, getValue: (loan) => loan.released_date ? moment(loan.released_date).format('DD/MM/YYYY') : '' },
+      time_limit_date: { header: 'Validity Date', width: 15, getValue: (loan) => loan.time_limit_date ? moment(loan.time_limit_date).format('DD/MM/YYYY') : '' }
+    };
+
+    const defaultColumnKeys = [
+      'serial_number',
+      'loan_date',
+      'customer_name',
+      'father_husband',
+      'address',
+      'post',
+      'pin_code',
+      'cell_number',
+      'aadhar_number',
+      'occupation',
+      'loan_amount',
+      'item_type',
+      'item_weight',
+      'item_description',
+      'status',
+      'released_date',
+      'time_limit_date'
     ];
+
+    let activeKeys = [];
+    if (columns) {
+      activeKeys = columns.split(',').map(s => s.trim()).filter(k => columnDefinitions[k]);
+    }
+    if (activeKeys.length === 0) {
+      activeKeys = defaultColumnKeys;
+    }
+
+    // Set up headers dynamically
+    worksheet.columns = activeKeys.map(key => ({
+      header: columnDefinitions[key].header,
+      key: key,
+      width: columnDefinitions[key].width
+    }));
     
     // Style headers
     worksheet.getRow(1).font = { bold: true };
@@ -203,24 +242,13 @@ router.get('/:companyId/export', async (req, res) => {
       fgColor: { argb: 'FFE0E0E0' }
     };
     
-    // Add data rows
+    // Add data rows dynamically
     loans.forEach(loan => {
-      worksheet.addRow({
-        serial_number: loan.serial_number,
-        loan_date: moment(loan.loan_date).format('DD/MM/YYYY'),
-        customer_name: loan.customer_name,
-        father_husband: loan.father_name || loan.husband_name || '',
-        address: loan.address,
-        occupation: loan.occupation || '',
-        cell_number: loan.cell_number || '',
-        loan_amount: parseFloat(loan.loan_amount).toFixed(2),
-        item_type: loan.item_type.toUpperCase(),
-        item_weight: parseFloat(loan.item_weight).toFixed(3),
-        item_description: loan.item_description,
-        interest_rate: parseFloat(loan.interest_rate).toFixed(2) + '%',
-        status: loan.status.toUpperCase(),
-        released_date: loan.released_date ? moment(loan.released_date).format('DD/MM/YYYY') : ''
+      const rowData = {};
+      activeKeys.forEach(key => {
+        rowData[key] = columnDefinitions[key].getValue(loan);
       });
+      worksheet.addRow(rowData);
     });
     
     // Add summary section

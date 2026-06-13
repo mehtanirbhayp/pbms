@@ -131,6 +131,15 @@
             color: #0f172a;
         }
         
+        /* Make fields in the Create New Loan section smaller except for Customer Name, Address, and Item Description */
+        #new-loan .form-group input:not(#customerName), #new-loan .form-group select {
+            max-width: 280px;
+        }
+        
+        #new-loan .form-group {
+            margin-bottom: 0;
+        }
+        
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #1d4ed8;
@@ -1035,10 +1044,69 @@
             .form-actions .btn {
                 width: 100%;
             }
+        }
 
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        /* Horizontal Columns Customizer for Master Sheet */
+        .ms-columns-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #ffffff;
+            margin-top: 10px;
+        }
+        .ms-column-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 160px;
+            flex: 1 1 160px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+        .ms-column-selector:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+        }
+        .ms-column-selector .label {
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .ms-column-selector select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #ffffff;
+            font-size: 0.9em;
+            color: #0f172a;
+            cursor: pointer;
+        }
+        .ms-column-selector .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1em;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.15s;
+            padding: 0 4px;
+        }
+        .ms-column-selector .remove-btn:hover {
+            color: #ef4444;
         }
     </style>
 </head>
@@ -1157,7 +1225,7 @@
                             <h3>Company & Item Information</h3>
                         </div>
                         <div class="form-section-content">
-                            <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="form-row" style="grid-template-columns: repeat(3, 280px); gap: 12px 15px;">
                                 <div class="form-group">
                                     <label for="company">
                                         Company
@@ -1199,7 +1267,7 @@
                             <h3>Customer Information</h3>
                         </div>
                         <div class="form-section-content">
-                            <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="form-row" style="grid-template-columns: 400px 280px 280px; gap: 12px 15px;">
                                 <div class="form-group">
                                     <label for="customerName">
                                         Customer Name
@@ -1217,7 +1285,7 @@
                                     <div class="form-hint">10-digit contact number (optional)</div>
                                 </div>
                             </div>
-                            <div class="form-row">
+                            <div class="form-row" style="grid-template-columns: 540px 280px; gap: 12px 15px;">
                                 <div class="form-group">
                                     <label for="address">
                                         Address
@@ -1231,7 +1299,7 @@
                                     <div class="form-hint">12 digits in format 4-4-4 (optional)</div>
                                 </div>
                             </div>
-                            <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="form-row" style="grid-template-columns: repeat(3, 280px); gap: 12px 15px;">
                                 <div class="form-group">
                                     <label for="occupation">Occupation</label>
                                     <input type="text" id="occupation" placeholder="Enter occupation" autocomplete="new-password">
@@ -1255,7 +1323,7 @@
                             <h3>Loan Details</h3>
                         </div>
                         <div class="form-section-content">
-                            <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                            <div class="form-row" style="grid-template-columns: repeat(4, 200px); gap: 12px 15px;">
                                 <div class="form-group">
                                     <label for="loanAmount">
                                         Loan Amount (₹)
@@ -1402,6 +1470,27 @@
                     </div>
                 </div>
                 
+                <!-- Mailing Label Fields Customization Configuration Card -->
+                <div id="mlFieldsConfigCard" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            📮 Mailing Label Customization
+                        </h3>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-success" onclick="addMailingLabelField()" style="padding: 6px 12px; font-size: 0.85em; width: auto; height: auto;">+ Add Line</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetMailingLabelFields()" style="padding: 6px 12px; font-size: 0.85em; background: #64748b; width: auto; height: auto;">Reset Default</button>
+                        </div>
+                    </div>
+                    
+                    <p style="color: #64748b; font-size: 0.85em; margin: 0 0 15px 0; line-height: 1.4;">
+                        Configure the lines printed on the mailing labels in order from top to bottom. Click on any field selector to change it.
+                    </p>
+
+                    <div id="mlFieldsContainer" class="ms-columns-container">
+                        <!-- Mailing label fields will be rendered here dynamically -->
+                    </div>
+                </div>
+                
                 <div id="mailingLabelResult"></div>
             </div>
             
@@ -1434,6 +1523,27 @@
                     <div class="form-group">
                         <label for="endDate">End Date</label>
                         <input type="date" id="endDate">
+                    </div>
+                </div>
+                
+                <!-- Excel Columns Customization Configuration Card -->
+                <div id="msColumnsConfigCard" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            📋 Excel Column Customization
+                        </h3>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-success" onclick="addMasterSheetColumn()" style="padding: 6px 12px; font-size: 0.85em; width: auto; height: auto;">+ Add Column</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetMasterSheetColumns()" style="padding: 6px 12px; font-size: 0.85em; background: #64748b; width: auto; height: auto;">Reset Default</button>
+                        </div>
+                    </div>
+                    
+                    <p style="color: #64748b; font-size: 0.85em; margin: 0 0 15px 0; line-height: 1.4;">
+                        Configure the columns in order from 1 to N. Click on any field selector to change it.
+                    </p>
+
+                    <div id="msColumnsContainer" class="ms-columns-container">
+                        <!-- Column items will be rendered here dynamically -->
                     </div>
                 </div>
                 
@@ -1505,9 +1615,9 @@
                         </p>
                         <div style="margin-bottom: 20px;">
                             <label for="backupFile" style="display: block; margin-bottom: 10px; font-weight: 600; color: #856404;">
-                                Select Backup File (.json)
+                                Select Backup File (.db)
                             </label>
-                            <input type="file" id="backupFile" accept=".json" style="width: 100%; padding: 10px; border: 2px solid #ffc107; border-radius: 5px; font-size: 1em;">
+                            <input type="file" id="backupFile" accept=".db" style="width: 100%; padding: 10px; border: 2px solid #ffc107; border-radius: 5px; font-size: 1em;">
                         </div>
                         <button onclick="importAllData()" class="btn" style="width: 100%; padding: 15px; font-size: 1.1em; background: #ffc107; color: #000; border: none;">
                             Import Data
@@ -1519,7 +1629,7 @@
                     <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin-top: 30px; border-left: 4px solid #2196F3;">
                         <h4 style="margin-bottom: 10px; color: #1976D2;">📋 Instructions</h4>
                         <ul style="color: #1565C0; line-height: 1.8; padding-left: 20px;">
-                            <li><strong>Export:</strong> Click "Export All Data" to download a JSON file containing all your data.</li>
+                            <li><strong>Export:</strong> Click "Export All Data" to download a database backup file containing all your data.</li>
                             <li><strong>Import:</strong> Select a previously exported backup file and click "Import Data" to restore it.</li>
                             <li><strong>Migration:</strong> To migrate to another computer, export on the old system and import on the new system.</li>
                             <li><strong>Backup:</strong> Regularly export your data as a safety backup.</li>
@@ -2729,12 +2839,16 @@
 
         async function authFetch(url, options = {}) {
             const token = getAuthToken();
+            const headers = { ...(options.headers || {}) };
+            
+            // Only set Content-Type to application/json if the body is not FormData
+            if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json';
+            }
+
             const fetchOptions = {
                 ...options,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(options.headers || {})
-                }
+                headers
             };
 
             if (token) {
@@ -2767,6 +2881,8 @@
             await loadCompanies();
             await loadDashboard();
             setDefaultDate();
+            initMasterSheetColumns();
+            initMailingLabelFields();
 
             const form = document.getElementById('loanForm');
             if (form) {
@@ -3915,6 +4031,151 @@
             }
         }
         
+        // Mailing Label Customizer configuration and printing logic
+        const defaultMailingLabelFields = [
+            'customer_name',
+            'father_husband',
+            'address',
+            'post',
+            'pin_code',
+            'cell_number'
+        ];
+
+        let mailingLabelFields = [];
+
+        function getMailingLabelFields() {
+            const stored = localStorage.getItem('mailingLabelFieldConfig');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
+                        return parsed;
+                    }
+                } catch (e) {}
+            }
+            return [...defaultMailingLabelFields];
+        }
+
+        function saveMailingLabelFields(config) {
+            localStorage.setItem('mailingLabelFieldConfig', JSON.stringify(config));
+        }
+
+        function initMailingLabelFields() {
+            mailingLabelFields = getMailingLabelFields();
+            renderMailingLabelFields();
+        }
+
+        function renderMailingLabelFields() {
+            const container = document.getElementById('mlFieldsContainer');
+            if (!container) return;
+
+            if (mailingLabelFields.length === 0) {
+                container.innerHTML = '<div style="color: #64748b; font-size: 0.9em; padding: 10px; text-align: center; width: 100%;">No fields configured. Click "+ Add Line" to start.</div>';
+                return;
+            }
+
+            container.innerHTML = mailingLabelFields.map((currentValue, index) => {
+                const optionsHTML = Object.entries(allAvailableFields).map(([key, label]) => {
+                    return `<option value="${key}" ${currentValue === key ? 'selected' : ''}>${label}</option>`;
+                }).join('');
+
+                return `
+                    <div class="ms-column-selector">
+                        <span class="label">Line ${index + 1}</span>
+                        <select onchange="updateMailingLabelField(${index}, this.value)">
+                            <option value="">[None / Exclude]</option>
+                            ${optionsHTML}
+                        </select>
+                        <button type="button" class="remove-btn" onclick="removeMailingLabelField(${index})" title="Remove Line">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateMailingLabelField(index, value) {
+            mailingLabelFields[index] = value;
+            saveMailingLabelFields(mailingLabelFields);
+            renderMailingLabelFields();
+            if (currentMailingLabelLoans && currentMailingLabelLoans.length > 0) {
+                displayMailingLabels(currentMailingLabelLoans);
+            }
+        }
+
+        function addMailingLabelField() {
+            mailingLabelFields.push('');
+            saveMailingLabelFields(mailingLabelFields);
+            renderMailingLabelFields();
+            if (currentMailingLabelLoans && currentMailingLabelLoans.length > 0) {
+                displayMailingLabels(currentMailingLabelLoans);
+            }
+        }
+
+        function removeMailingLabelField(index) {
+            mailingLabelFields.splice(index, 1);
+            saveMailingLabelFields(mailingLabelFields);
+            renderMailingLabelFields();
+            if (currentMailingLabelLoans && currentMailingLabelLoans.length > 0) {
+                displayMailingLabels(currentMailingLabelLoans);
+            }
+        }
+
+        function resetMailingLabelFields() {
+            localStorage.removeItem('mailingLabelFieldConfig');
+            initMailingLabelFields();
+            if (currentMailingLabelLoans && currentMailingLabelLoans.length > 0) {
+                displayMailingLabels(currentMailingLabelLoans);
+            }
+        }
+
+        function getMailingLabelLineValue(loan, fieldKey) {
+            if (!fieldKey) return '';
+            
+            const loanDate = formatDate(loan.loan_date);
+            const fatherHusbandName = loan.father_name || loan.husband_name || '';
+            const phoneNumber = loan.cell_number || '';
+            
+            switch (fieldKey) {
+                case 'serial_number':
+                    return loan.serial_number || '';
+                case 'loan_date':
+                    return loanDate;
+                case 'customer_name':
+                    return loan.customer_name || '';
+                case 'father_husband':
+                    return fatherHusbandName;
+                case 'address':
+                    return loan.address || '';
+                case 'post':
+                    return loan.post || '';
+                case 'pin_code':
+                    return loan.pin_code || '';
+                case 'cell_number':
+                    return phoneNumber ? `Cell: ${phoneNumber}` : '';
+                case 'aadhar_number':
+                    return loan.aadhar_number || loan.aadharNumber || '';
+                case 'occupation':
+                    return loan.occupation || '';
+                case 'loan_amount':
+                    return loan.loan_amount ? `₹${parseFloat(loan.loan_amount).toFixed(2)}` : '';
+                case 'item_type':
+                    return loan.item_type ? (loan.item_type).toUpperCase() : '';
+                case 'item_weight':
+                    return loan.item_weight ? `${parseFloat(loan.item_weight).toFixed(3)} gms` : '';
+                case 'item_description':
+                    return loan.item_description || '';
+                case 'interest_rate':
+                    return loan.interest_rate ? `${parseFloat(loan.interest_rate).toFixed(2)}%` : '';
+                case 'status':
+                    return loan.status ? (loan.status).toUpperCase() : '';
+                case 'released_date':
+                    return loan.released_date ? formatDate(loan.released_date) : '';
+                case 'time_limit_date':
+                    return loan.time_limit_date ? formatDate(loan.time_limit_date) : '';
+                default:
+                    return '';
+            }
+        }
+
         // Store loans data globally for print function
         let currentMailingLabelLoans = [];
         
@@ -3923,14 +4184,17 @@
             currentMailingLabelLoans = loans; // Store for print function
             
             const labelsHTML = loans.map(loan => {
-                // Format date
+                const lines = mailingLabelFields
+                    .map(key => getMailingLabelLineValue(loan, key))
+                    .filter(val => val && val.trim() !== '');
+
+                const linesHTML = lines.map(line => `
+                    <div style="margin-bottom: 1px; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${line}
+                    </div>
+                `).join('');
+                
                 const loanDate = formatDate(loan.loan_date);
-                
-                // Get father/husband name
-                const fatherHusbandName = loan.father_name || loan.husband_name || '';
-                
-                // Format phone number
-                const phoneNumber = loan.cell_number || 'N/A';
                 
                 return `
                     <div style="background: white; padding: 5px; border-radius: 4px; border: 1px solid #e2e8f0; font-family: 'Courier New', monospace; line-height: 1.1; margin-bottom: 20px; page-break-inside: avoid;">
@@ -3939,18 +4203,7 @@
                             <span>${loanDate}</span>
                             <span>${loan.serial_number}</span>
                         </div>
-                        <div style="margin-bottom: 1px; font-size: 15px;">
-                            ${loan.customer_name}
-                        </div>
-                        <div style="margin-bottom: 1px; font-size: 15px;">
-                            ${fatherHusbandName || 'N/A'}
-                        </div>
-                        <div style="margin-bottom: 1px; font-size: 15px;">
-                            ${loan.address}
-                        </div>
-                        <div style="font-size: 15px;">
-                            ${phoneNumber}
-                        </div>
+                        ${linesHTML}
                     </div>
                 `;
             }).join('');
@@ -3979,18 +4232,19 @@
             
             // Format loans for printing
             const formattedLoans = currentMailingLabelLoans.map(loan => {
-                const loanDate = formatDate(loan.loan_date);
-                const fatherHusbandName = loan.father_name || loan.husband_name || '';
-                const phoneNumber = loan.cell_number || 'N/A';
+                const lines = mailingLabelFields
+                    .map(key => getMailingLabelLineValue(loan, key))
+                    .filter(val => val && val.trim() !== '');
+
+                const linesHTML = lines.map(line => `
+                    <div class="row" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${line}</div>
+                `).join('');
                 
                 return {
                     amount: parseFloat(loan.loan_amount).toFixed(2),
-                    date: loanDate,
+                    date: formatDate(loan.loan_date),
                     serial: loan.serial_number,
-                    name: loan.customer_name,
-                    fatherHusband: fatherHusbandName || 'N/A',
-                    address: loan.address,
-                    phone: phoneNumber
+                    linesHTML: linesHTML
                 };
             });
             
@@ -4010,10 +4264,7 @@
                                 <span>${loan.date}</span>
                                 <span>${loan.serial}</span>
                             </div>
-                            <div class="row">${loan.name}</div>
-                            <div class="row">${loan.fatherHusband}</div>
-                            <div class="row">${loan.address}</div>
-                            <div class="row">${loan.phone}</div>
+                            ${loan.linesHTML}
                         </div>
                     `;
                 }).join('');
@@ -4140,6 +4391,122 @@
             }, 250);
         }
         
+        // Master Sheet dynamic column selection logic (Dropdown style)
+        const allAvailableFields = {
+            serial_number: 'Serial No',
+            loan_date: 'Date',
+            customer_name: 'Customer Name',
+            father_husband: 'Father/Husband',
+            address: 'Address',
+            post: 'Post',
+            pin_code: 'Pin Code',
+            cell_number: 'Cell No',
+            aadhar_number: 'Aadhar Number',
+            occupation: 'Occupation',
+            loan_amount: 'Loan Amount',
+            item_type: 'Item Type',
+            item_weight: 'Weight (gms)',
+            item_description: 'Description',
+            interest_rate: 'Interest Rate',
+            status: 'Status',
+            released_date: 'Released Date',
+            time_limit_date: 'Validity Date'
+        };
+
+        const defaultMasterSheetColumns = [
+            'serial_number',
+            'loan_date',
+            'customer_name',
+            'father_husband',
+            'address',
+            'post',
+            'pin_code',
+            'cell_number',
+            'aadhar_number',
+            'occupation',
+            'loan_amount',
+            'item_type',
+            'item_weight',
+            'item_description',
+            'status',
+            'released_date',
+            'time_limit_date'
+        ];
+
+        let masterSheetColumns = [];
+
+        function getMasterSheetColumns() {
+            const stored = localStorage.getItem('masterSheetColumnConfig');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
+                        return parsed;
+                    }
+                } catch (e) {}
+            }
+            return [...defaultMasterSheetColumns];
+        }
+
+        function saveMasterSheetColumns(config) {
+            localStorage.setItem('masterSheetColumnConfig', JSON.stringify(config));
+        }
+
+        function initMasterSheetColumns() {
+            masterSheetColumns = getMasterSheetColumns();
+            renderMasterSheetColumns();
+        }
+
+        function renderMasterSheetColumns() {
+            const container = document.getElementById('msColumnsContainer');
+            if (!container) return;
+
+            if (masterSheetColumns.length === 0) {
+                container.innerHTML = '<div style="color: #64748b; font-size: 0.9em; padding: 10px; text-align: center; width: 100%;">No columns configured. Click "+ Add Column" to start.</div>';
+                return;
+            }
+
+            container.innerHTML = masterSheetColumns.map((currentValue, index) => {
+                const optionsHTML = Object.entries(allAvailableFields).map(([key, label]) => {
+                    return `<option value="${key}" ${currentValue === key ? 'selected' : ''}>${label}</option>`;
+                }).join('');
+
+                return `
+                    <div class="ms-column-selector">
+                        <span class="label">Field ${index + 1}</span>
+                        <select onchange="updateMasterSheetColumn(${index}, this.value)">
+                            <option value="">[None / Exclude]</option>
+                            ${optionsHTML}
+                        </select>
+                        <button type="button" class="remove-btn" onclick="removeMasterSheetColumn(${index})" title="Remove Column">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateMasterSheetColumn(index, value) {
+            masterSheetColumns[index] = value;
+            saveMasterSheetColumns(masterSheetColumns);
+            renderMasterSheetColumns();
+        }
+
+        function addMasterSheetColumn() {
+            masterSheetColumns.push('');
+            saveMasterSheetColumns(masterSheetColumns);
+            renderMasterSheetColumns();
+        }
+
+        function removeMasterSheetColumn(index) {
+            masterSheetColumns.splice(index, 1);
+            saveMasterSheetColumns(masterSheetColumns);
+            renderMasterSheetColumns();
+        }
+
+        function resetMasterSheetColumns() {
+            localStorage.removeItem('masterSheetColumnConfig');
+            initMasterSheetColumns();
+        }
+        
         async function loadMasterSheet() {
             try {
                 const companyId = document.getElementById('msCompany').value;
@@ -4259,27 +4626,28 @@
         async function exportAllData() {
             const statusDiv = document.getElementById('exportStatus');
             try {
-                statusDiv.innerHTML = '<div style="color: #2196F3;">⏳ Exporting data, please wait...</div>';
+                statusDiv.innerHTML = '<div style="color: #2196F3;">⏳ Exporting database, please wait...</div>';
                 
                 const response = await authFetch('/api/data-migration/export');
                 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to export data');
+                    let errorMessage = 'Failed to export database';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error || errorMessage;
+                    } catch (e) {}
+                    throw new Error(errorMessage);
                 }
                 
-                // Get the JSON data
-                const data = await response.json();
-                
-                // Create a blob and download it
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                // Get the blob data directly
+                const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 
                 // Get filename from response headers or create one
                 const contentDisposition = response.headers.get('Content-Disposition');
-                let filename = 'pawn_broker_backup.json';
+                let filename = 'pawn_broker_backup.db';
                 if (contentDisposition) {
                     const filenameMatch = contentDisposition.match(/filename="(.+)"/);
                     if (filenameMatch) {
@@ -4293,13 +4661,13 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
-                statusDiv.innerHTML = '<div style="color: #4CAF50; font-weight: 600;">✅ Data exported successfully! File downloaded.</div>';
+                statusDiv.innerHTML = '<div style="color: #4CAF50; font-weight: 600;">✅ Database backup exported successfully!</div>';
                 
                 setTimeout(() => {
                     statusDiv.innerHTML = '';
                 }, 5000);
             } catch (error) {
-                console.error('Error exporting data:', error);
+                console.error('Error exporting database:', error);
                 statusDiv.innerHTML = `<div style="color: #f44336; font-weight: 600;">❌ Error: ${error.message}</div>`;
             }
         }
@@ -4310,7 +4678,7 @@
             
             try {
                 if (!fileInput.files || fileInput.files.length === 0) {
-                    showAlert('Please select a backup file', 'error');
+                    showAlert('Please select a backup file (.db)', 'error');
                     return;
                 }
                 
@@ -4335,38 +4703,14 @@
                     return;
                 }
                 
-                statusDiv.innerHTML = '<div style="color: #ff9800;">⏳ Reading file and importing data, please wait... This may take a moment.</div>';
+                statusDiv.innerHTML = '<div style="color: #ff9800;">⏳ Uploading and restoring database, please wait... This may take a moment.</div>';
                 
-                // Read file as text
-                const fileContent = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = (e) => reject(new Error('Failed to read file'));
-                    reader.readAsText(file);
-                });
+                const formData = new FormData();
+                formData.append('backupFile', file);
                 
-                // Parse JSON to validate it
-                let importData;
-                try {
-                    importData = JSON.parse(fileContent);
-                } catch (parseError) {
-                    throw new Error('Invalid JSON file. Please select a valid backup file.');
-                }
-                
-                // Validate backup file structure
-                if (!importData.tables || typeof importData.tables !== 'object') {
-                    throw new Error('Invalid backup file format. The file does not contain valid backup data.');
-                }
-                
-                statusDiv.innerHTML = '<div style="color: #ff9800;">⏳ Importing data, please wait... This may take a moment.</div>';
-                
-                // Send JSON data
                 const response = await authFetch('/api/data-migration/import', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(importData)
+                    body: formData
                 });
                 
                 if (!response.ok) {
@@ -4375,7 +4719,6 @@
                         const errorData = await response.json();
                         errorMessage = errorData.error || errorData.message || errorMessage;
                     } catch (e) {
-                        // If response is not JSON, try to get text
                         try {
                             const errorText = await response.text();
                             errorMessage = errorText || errorMessage;
@@ -4390,7 +4733,7 @@
                 
                 statusDiv.innerHTML = `
                     <div style="color: #4CAF50; font-weight: 600; padding: 15px; background: #e8f5e9; border-radius: 5px;">
-                        ✅ Data imported successfully!<br>
+                        ✅ Database restored successfully!<br>
                         <div style="margin-top: 10px; font-size: 0.9em;">
                             Companies: ${result.imported.companies}<br>
                             Customers: ${result.imported.customers}<br>
@@ -4406,14 +4749,14 @@
                 
                 // Reload the page after a short delay to refresh all data
                 setTimeout(() => {
-                    showAlert('Data imported successfully! Page will reload...', 'success');
+                    showAlert('Database restored successfully! Page will reload...', 'success');
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);
                 }, 2000);
                 
             } catch (error) {
-                console.error('Error importing data:', error);
+                console.error('Error importing database:', error);
                 const errorMessage = error.message || 'Unknown error occurred';
                 statusDiv.innerHTML = `<div style="color: #f44336; font-weight: 600; padding: 15px; background: #ffebee; border-radius: 5px;">❌ Error: ${errorMessage}</div>`;
                 showAlert('Import failed: ' + errorMessage, 'error');
@@ -4438,6 +4781,16 @@
                 if (startDate) params.push(`startDate=${startDate}`);
                 if (endDate) params.push(`endDate=${endDate}`);
                 if (status) params.push(`status=${status}`);
+                
+                // Add selected columns configuration
+                const activeCols = masterSheetColumns
+                    .filter(key => key !== '')
+                    .join(',');
+                if (!activeCols) {
+                    showAlert('Please select at least one column to export', 'error');
+                    return;
+                }
+                params.push(`columns=${activeCols}`);
                 
                 if (params.length > 0) {
                     url += '?' + params.join('&');

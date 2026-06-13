@@ -13,6 +13,9 @@ router.post('/', async (req, res) => {
       fatherName,
       husbandName,
       address,
+      post,
+      pinCode,
+      aadharNumber,
       occupation,
       cellNumber,
       loanAmount,
@@ -23,6 +26,7 @@ router.post('/', async (req, res) => {
       interestRate = 2.0,
       timeLimitDate
     } = req.body;
+
 
     // Validate required fields
     if (!serialNumber || !companyId || !customerName || !address || !loanAmount || !itemWeight || !itemDescription || !itemType) {
@@ -70,13 +74,13 @@ router.post('/', async (req, res) => {
       customerId = existingCustomer.id;
       // Update customer information
       await db.run(
-        'UPDATE customers SET father_name = ?, husband_name = ?, address = ?, occupation = ? WHERE id = ?',
-        [fatherName, husbandName, address, occupation, customerId]
+        'UPDATE customers SET father_name = ?, husband_name = ?, address = ?, post = ?, pin_code = ?, aadhar_number = ?, occupation = ? WHERE id = ?',
+        [fatherName, husbandName, address, post || '', pinCode || '', aadharNumber || '', occupation, customerId]
       );
     } else {
       const customerResult = await db.run(
-        'INSERT INTO customers (name, father_name, husband_name, address, occupation, cell_number) VALUES (?, ?, ?, ?, ?, ?)',
-        [customerName, fatherName, husbandName, address, occupation, cellNumber]
+        'INSERT INTO customers (name, father_name, husband_name, address, post, pin_code, aadhar_number, occupation, cell_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [customerName, fatherName, husbandName, address, post || '', pinCode || '', aadharNumber || '', occupation, cellNumber]
       );
       customerId = customerResult.id;
     }
@@ -172,7 +176,7 @@ router.get('/', async (req, res) => {
              l.released_date, l.time_limit_date,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -227,7 +231,7 @@ router.get('/:id', async (req, res) => {
              l.notice1_comment, l.notice2_comment, l.notice3_comment, l.notice4_comment,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -358,16 +362,16 @@ router.put('/:id', async (req, res) => {
 
     if (existingCustomer) {
       customerId = existingCustomer.id;
-      // Update customer information (only fields that exist in the table)
+      // Update customer information
       await db.run(
-        'UPDATE customers SET father_name = ?, husband_name = ?, address = ?, occupation = ? WHERE id = ?',
-        [fatherName, husbandName, address, occupation, customerId]
+        'UPDATE customers SET father_name = ?, husband_name = ?, address = ?, post = ?, pin_code = ?, aadhar_number = ?, occupation = ? WHERE id = ?',
+        [fatherName, husbandName, address, post || '', pinCode || '', aadharNumber || '', occupation, customerId]
       );
     } else {
-      // Create new customer (only fields that exist in the table)
+      // Create new customer
       const customerResult = await db.run(
-        'INSERT INTO customers (name, father_name, husband_name, address, occupation, cell_number) VALUES (?, ?, ?, ?, ?, ?)',
-        [customerName, fatherName, husbandName, address, occupation, cellNumber]
+        'INSERT INTO customers (name, father_name, husband_name, address, post, pin_code, aadhar_number, occupation, cell_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [customerName, fatherName, husbandName, address, post || '', pinCode || '', aadharNumber || '', occupation, cellNumber]
       );
       customerId = customerResult.id;
     }
@@ -398,7 +402,7 @@ router.put('/:id', async (req, res) => {
              l.released_date, l.time_limit_date,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -455,7 +459,7 @@ router.patch('/:id/deliver', async (req, res) => {
              l.released_date, l.time_limit_date,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -519,7 +523,7 @@ router.patch('/:id/release-date', async (req, res) => {
              l.released_date, l.time_limit_date,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -572,7 +576,7 @@ router.patch('/:id/default', async (req, res) => {
              l.released_date, l.time_limit_date,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
@@ -655,7 +659,7 @@ router.patch('/:id/undo', async (req, res) => {
              l.released_date, l.time_limit_date,
              c.name as company_name, c.type as company_type,
              cu.name as customer_name, cu.father_name, cu.husband_name, 
-             cu.address, cu.occupation, cu.cell_number
+             cu.address, cu.post, cu.pin_code, cu.aadhar_number, cu.occupation, cu.cell_number
       FROM loans l
       JOIN companies c ON l.company_id = c.id
       JOIN customers cu ON l.customer_id = cu.id
